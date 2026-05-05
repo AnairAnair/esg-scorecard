@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESG Scorecard — CSR Evaluation Tool</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<title>ESG Scorecard: CSR Evaluation Tool</title>
 <style>
   :root {
     --bg: #f2f0e8;
@@ -18,9 +17,9 @@
     --text: #1a1a1a;
     --text-muted: #6b6b6b;
     --border: #d4d0c4;
-    --mono: 'DM Mono', monospace;
-    --display: 'Syne', sans-serif;
-    --body: 'DM Sans', sans-serif;
+    --mono: 'Times New Roman', Times, serif;
+    --display: 'Times New Roman', Times, serif;
+    --body: 'Times New Roman', Times, serif;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -479,9 +478,9 @@
     <div class="sidebar-card">
       <div class="sidebar-card-header">Scoring Key</div>
       <div class="sidebar-card-body">
-        <div class="legend-row"><div class="legend-swatch" style="background:var(--green-mid)"></div>Yes — Full compliance / evidence present</div>
-        <div class="legend-row"><div class="legend-swatch" style="background:var(--amber)"></div>Partial — Incomplete or unverified</div>
-        <div class="legend-row"><div class="legend-swatch" style="background:var(--red)"></div>No — Absent or explicitly contradicted</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--green-mid)"></div>Yes: Full compliance / evidence present</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--amber)"></div>Partial: Incomplete or unverified</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--red)"></div>No: Absent or explicitly contradicted</div>
         <div style="height:1px;background:var(--border);margin:10px 0;"></div>
         <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">Sources: SEC filings, CDP disclosures, GRI reports, TCFD reports, and company CSR documentation. Self-reports should be treated as potentially biased and cross-verified.</div>
       </div>
@@ -489,11 +488,6 @@
 
     <button class="reset-btn" onclick="resetAll()">Reset Scorecard</button>
   </div>
-</div>
-
-<div class="footer">
-  <span>Based on Carroll (1979) · Dahlsrud (2008) · Eccles et al. (2014) · Lyon &amp; Montgomery (2015)</span>
-  <span>Frameworks: CDP · GRI · TCFD · ESRS · PRI · CA100+</span>
 </div>
 
 <script>
