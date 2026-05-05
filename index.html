@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESG Scorecard — CSR Evaluation Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f0e8;
+    --surface: #ffffff;
+    --surface-2: #e8e5da;
+    --green-dark: #1c3a2b;
+    --green-mid: #2e7d32;
+    --green-light: #c8e6c9;
+    --red: #c0392b;
+    --amber: #d4a017;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --border: #d4d0c4;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: var(--body);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--green-dark);
+    padding: 14px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topbar-title {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #8fbc9e;
+  }
+  .topbar-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #557a63;
+    letter-spacing: 1px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 52px 48px 36px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 40px;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: 58px;
+    font-weight: 800;
+    line-height: 1.0;
+    color: var(--green-dark);
+    letter-spacing: -1px;
+  }
+  .hero h1 span { color: var(--green-mid); }
+  .hero-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-top: 12px;
+    max-width: 560px;
+  }
+  .hero-score-preview {
+    text-align: center;
+    background: var(--green-dark);
+    border-radius: 4px;
+    padding: 20px 28px;
+    min-width: 140px;
+  }
+  .hero-score-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #8fbc9e;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .hero-score-num {
+    font-family: var(--display);
+    font-size: 52px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    transition: all 0.4s ease;
+  }
+  .hero-score-denom {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #557a63;
+    margin-top: 2px;
+  }
+  .hero-score-band {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  /* ── COMPANY INPUT ── */
+  .company-input-row {
+    padding: 24px 48px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .company-input-row label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .company-input-row input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 340px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--green-dark);
+    outline: none;
+  }
+  .company-input-row input:focus { border-color: var(--green-mid); }
+  .preset-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .preset-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .preset-btn:hover { background: var(--green-dark); color: #8fbc9e; border-color: var(--green-dark); }
+
+  /* ── MAIN GRID ── */
+  .main {
+    padding: 32px 48px 48px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── CATEGORIES ── */
+  .categories { display: flex; flex-direction: column; gap: 20px; }
+
+  .category-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cat-header {
+    padding: 14px 20px;
+    background: var(--green-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cat-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+  }
+  .cat-score-pill {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: rgba(255,255,255,0.15);
+    color: #8fbc9e;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .cat-desc {
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: #f9f8f4;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .questions { padding: 4px 0; }
+
+  .question-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0ede4;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .question-row:last-child { border-bottom: none; }
+  .q-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .q-weight {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+  .q-controls {
+    display: flex;
+    gap: 4px;
+  }
+  .q-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .q-btn:hover { background: var(--surface-2); }
+  .q-btn.selected-yes { background: var(--green-mid); color: #fff; border-color: var(--green-mid); font-weight: 600; }
+  .q-btn.selected-partial { background: var(--amber); color: #fff; border-color: var(--amber); font-weight: 600; }
+  .q-btn.selected-no { background: var(--red); color: #fff; border-color: var(--red); font-weight: 600; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+
+  .sidebar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .sidebar-card-header {
+    padding: 11px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .sidebar-card-body { padding: 14px 16px; }
+
+  /* score breakdown */
+  .score-bar-row {
+    margin-bottom: 10px;
+  }
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .score-bar-name { font-size: 12px; color: var(--text); }
+  .score-bar-val { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  .score-bar-track {
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: var(--green-mid);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* risk flags */
+  .risk-item {
+    padding: 8px 10px;
+    border-radius: 2px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .risk-item:last-child { margin-bottom: 0; }
+  .risk-item.red { background: #fdf0ee; color: #7a1f1f; border-left: 3px solid var(--red); }
+  .risk-item.amber { background: #fdf8ee; color: #6b4400; border-left: 3px solid var(--amber); }
+  .risk-item.green { background: #eef8f0; color: #1a4a26; border-left: 3px solid var(--green-mid); }
+  .risk-dot { width: 6px; height: 6px; border-radius: 50%; min-width: 6px; margin-top: 5px; }
+  .risk-dot.red { background: var(--red); }
+  .risk-dot.amber { background: var(--amber); }
+  .risk-dot.green { background: var(--green-mid); }
+
+  /* verdict */
+  .verdict-box {
+    padding: 14px;
+    border-radius: 2px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .verdict-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .verdict-text {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .verdict-desc {
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  /* legend */
+  .legend-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    min-width: 14px;
+  }
+
+  /* reset button */
+  .reset-btn {
+    width: 100%;
+    padding: 11px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* footer */
+  .footer {
+    padding: 20px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-score-preview { display: none; }
+    .topbar, .hero, .company-input-row, .main, .footer { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">ESG Scorecard</div>
+  <div class="topbar-sub">Capstone Tangible &nbsp;·&nbsp; Arjun Nair &nbsp;·&nbsp; Andover High School 2025–2026</div>
+</div>
+
+<div class="hero">
+  <div>
+    <h1>Corporate <span>ESG</span><br>Scorecard</h1>
+    <div class="hero-desc">A structured evaluation framework for assessing corporate sustainability claims, identifying greenwashing behaviors, and comparing ESG disclosure quality across firms. Built from the research findings of this capstone project.</div>
+  </div>
+  <div class="hero-score-preview">
+    <div class="hero-score-label">Total Score</div>
+    <div class="hero-score-num" id="totalScore">0</div>
+    <div class="hero-score-denom">out of 100</div>
+    <div class="hero-score-band" id="scoreBand" style="background:#2a2a2a; color:#888;">—</div>
+  </div>
+</div>
+
+<div class="company-input-row">
+  <label>Company Being Evaluated:</label>
+  <input type="text" id="companyName" placeholder="Enter company name..." value="">
+  <label style="margin-left:12px;">Load Example:</label>
+  <div class="preset-btns">
+    <button class="preset-btn" onclick="loadPreset('tjx')">TJX Companies</button>
+    <button class="preset-btn" onclick="loadPreset('liberty')">Liberty Mutual</button>
+    <button class="preset-btn" onclick="loadPreset('statestreet')">State Street</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="categories" id="categoriesContainer"></div>
+
+  <div class="sidebar">
+
+    <!-- SCORE BREAKDOWN -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Score Breakdown</div>
+      <div class="sidebar-card-body" id="scoreBreakdown"></div>
+    </div>
+
+    <!-- VERDICT -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Evaluation Verdict</div>
+      <div class="sidebar-card-body">
+        <div class="verdict-box" id="verdictBox" style="background:#f9f8f4;">
+          <div class="verdict-label" style="color:#aaa;">Awaiting Input</div>
+          <div class="verdict-text" style="color:#ccc;">—</div>
+          <div class="verdict-desc" style="color:#bbb;">Complete the scorecard to generate a verdict.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GREENWASHING FLAGS -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Greenwashing Risk Flags</div>
+      <div class="sidebar-card-body" id="riskFlags">
+        <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px 0;">Complete the scorecard to see risk flags.</div>
+      </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Scoring Key</div>
+      <div class="sidebar-card-body">
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--green-mid)"></div>Yes — Full compliance / evidence present</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--amber)"></div>Partial — Incomplete or unverified</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:var(--red)"></div>No — Absent or explicitly contradicted</div>
+        <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+        <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">Sources: SEC filings, CDP disclosures, GRI reports, TCFD reports, and company CSR documentation. Self-reports should be treated as potentially biased and cross-verified.</div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">Reset Scorecard</button>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Based on Carroll (1979) · Dahlsrud (2008) · Eccles et al. (2014) · Lyon &amp; Montgomery (2015)</span>
+  <span>Frameworks: CDP · GRI · TCFD · ESRS · PRI · CA100+</span>
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: "disclosure",
+    title: "ESG Disclosure Scope",
+    desc: "Evaluates the breadth and completeness of the company's public ESG reporting across recognized third-party frameworks.",
+    questions: [
+      { id: "cdp", text: "Does the company file an annual CDP (Carbon Disclosure Project) disclosure?", weight: 3 },
+      { id: "gri", text: "Does the company publish a GRI-aligned sustainability report?", weight: 3 },
+      { id: "tcfd", text: "Does the company produce a TCFD-aligned climate risk report?", weight: 3 },
+      { id: "esrs", text: "Is the company's disclosure aligned with ESRS standards (or actively working toward alignment)?", weight: 2 },
+      { id: "pri", text: "Is the company a signatory to the UN Principles for Responsible Investment (PRI)?", weight: 2 },
+    ]
+  },
+  {
+    id: "emissions",
+    title: "Emissions Reporting",
+    desc: "Assesses the completeness of greenhouse gas emissions measurement and target-setting across all three scopes.",
+    questions: [
+      { id: "scope1", text: "Does the company publicly report Scope 1 (direct) emissions with measurable data?", weight: 3 },
+      { id: "scope2", text: "Does the company publicly report Scope 2 (indirect energy) emissions with measurable data?", weight: 3 },
+      { id: "scope3", text: "Does the company publicly report Scope 3 (value chain) emissions with measurable data?", weight: 4 },
+      { id: "netzero", text: "Has the company set a net-zero or science-based emissions reduction target with a clear timeline?", weight: 3 },
+    ]
+  },
+  {
+    id: "verification",
+    title: "Third-Party Verification",
+    desc: "Measures the degree to which sustainability claims are independently audited or verified, reducing greenwashing risk.",
+    questions: [
+      { id: "audit", text: "Is the company's CSR or sustainability report independently audited by a third party?", weight: 4 },
+      { id: "ratings", text: "Does the company participate in external ESG rating assessments (MSCI, Sustainalytics, etc.)?", weight: 3 },
+      { id: "ca100", text: "Is the company a member of or participant in investor-led coalitions (CA100+, TCFD Supporters)?", weight: 2 },
+      { id: "consistent", text: "Are the company's commitments consistent across multiple reporting cycles without reversal?", weight: 4 },
+    ]
+  },
+  {
+    id: "greenwashing",
+    title: "Greenwashing Risk",
+    desc: "Directly flags behaviors associated with the three greenwashing types identified by Lyon & Montgomery (2015): omission, abandoned commitments, and incomplete disclosure.",
+    questions: [
+      { id: "goals", text: "Are sustainability goals specific, measurable, and time-bound (not vague language only)?", weight: 4 },
+      { id: "negative", text: "Does the company disclose negative environmental performance data alongside positive metrics?", weight: 4 },
+      { id: "withdrawal", text: "Has the company maintained its ESG commitments without withdrawing from pledges or coalitions?", weight: 3 },
+      { id: "scope3miss", text: "Does the company avoid omitting Scope 3 (hardest-to-measure) emissions from public disclosure?", weight: 3 },
+    ]
+  },
+  {
+    id: "stakeholder",
+    title: "Stakeholder Trust & Engagement",
+    desc: "Evaluates whether sustainability commitments translate into measurable engagement with investors, employees, and communities.",
+    questions: [
+      { id: "esvote", text: "Does the company show strong E&S proxy voting support from institutional investors?", weight: 3 },
+      { id: "community", text: "Does the company have documented community engagement or social impact programs with measurable outcomes?", weight: 2 },
+      { id: "supply", text: "Does the company have a supplier sustainability code with documented enforcement mechanisms?", weight: 3 },
+      { id: "board", text: "Does the company have board-level oversight of ESG strategy and accountability?", weight: 2 },
+    ]
+  }
+];
+
+// Preset data for the three case study companies
+const PRESETS = {
+  tjx: {
+    name: "TJX Companies",
+    answers: {
+      cdp: "no", gri: "no", tcfd: "no", esrs: "no", pri: "no",
+      scope1: "partial", scope2: "partial", scope3: "no", netzero: "no",
+      audit: "no", ratings: "partial", ca100: "no", consistent: "partial",
+      goals: "no", negative: "no", withdrawal: "yes", scope3miss: "no",
+      esvote: "partial", community: "partial", supply: "no", board: "no"
+    }
+  },
+  liberty: {
+    name: "Liberty Mutual Insurance",
+    answers: {
+      cdp: "partial", gri: "partial", tcfd: "yes", esrs: "no", pri: "yes",
+      scope1: "yes", scope2: "yes", scope3: "no", netzero: "partial",
+      audit: "partial", ratings: "partial", ca100: "no", consistent: "partial",
+      goals: "partial", negative: "partial", withdrawal: "yes", scope3miss: "no",
+      esvote: "partial", community: "yes", supply: "partial", board: "partial"
+    }
+  },
+  statestreet: {
+    name: "State Street Corporation",
+    answers: {
+      cdp: "yes", gri: "yes", tcfd: "yes", esrs: "partial", pri: "yes",
+      scope1: "yes", scope2: "yes", scope3: "partial", netzero: "yes",
+      audit: "yes", ratings: "yes", ca100: "no", consistent: "no",
+      goals: "yes", negative: "yes", withdrawal: "no", scope3miss: "partial",
+      esvote: "no", community: "yes", supply: "yes", board: "yes"
+    }
+  }
+};
+
+// State
+let answers = {};
+
+function getScore(answer, weight) {
+  if (answer === "yes") return weight;
+  if (answer === "partial") return Math.round(weight * 0.5);
+  return 0;
+}
+
+function getMaxScore(questions) {
+  return questions.reduce((sum, q) => sum + q.weight, 0);
+}
+
+function getCategoryScore(cat) {
+  const earned = cat.questions.reduce((sum, q) => sum + getScore(answers[q.id] || "unanswered", q.weight), 0);
+  const max = getMaxScore(cat.questions);
+  return { earned, max, pct: max > 0 ? Math.round((earned / max) * 100) : 0 };
+}
+
+function getTotalScore() {
+  let earned = 0, max = 0;
+  CATEGORIES.forEach(cat => {
+    const s = getCategoryScore(cat);
+    earned += s.earned;
+    max += s.max;
+  });
+  return max > 0 ? Math.round((earned / max) * 100) : 0;
+}
+
+function getAnsweredCount() {
+  return Object.keys(answers).length;
+}
+
+function getTotalQuestions() {
+  return CATEGORIES.reduce((sum, cat) => sum + cat.questions.length, 0);
+}
+
+function renderCategories() {
+  const container = document.getElementById("categoriesContainer");
+  container.innerHTML = "";
+
+  CATEGORIES.forEach(cat => {
+    const { earned, max, pct } = getCategoryScore(cat);
+    const card = document.createElement("div");
+    card.className = "category-card";
+    card.innerHTML = `
+      <div class="cat-header">
+        <span class="cat-title">${cat.title}</span>
+        <span class="cat-score-pill">${earned}/${max} pts</span>
+      </div>
+      <div class="cat-desc">${cat.desc}</div>
+      <div class="questions">
+        ${cat.questions.map(q => `
+          <div class="question-row">
+            <div>
+              <div class="q-text">${q.text}</div>
+              <div class="q-weight">Weight: ${q.weight} pts</div>
+            </div>
+            <div class="q-controls">
+              <button class="q-btn ${answers[q.id] === 'yes' ? 'selected-yes' : ''}" onclick="setAnswer('${q.id}','yes')">Y</button>
+              <button class="q-btn ${answers[q.id] === 'partial' ? 'selected-partial' : ''}" onclick="setAnswer('${q.id}','partial')">~</button>
+              <button class="q-btn ${answers[q.id] === 'no' ? 'selected-no' : ''}" onclick="setAnswer('${q.id}','no')">N</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderSidebar() {
+  const total = getTotalScore();
+  const answered = getAnsweredCount();
+  const totalQ = getTotalQuestions();
+
+  // Total score
+  document.getElementById("totalScore").textContent = answered > 0 ? total : "0";
+
+  // Score band
+  const band = document.getElementById("scoreBand");
+  const scoreNum = document.getElementById("totalScore");
+  const hero = document.querySelector(".hero-score-preview");
+  if (answered === 0) {
+    band.style.background = "#2a2a2a";
+    band.style.color = "#888";
+    band.textContent = "—";
+  } else if (total >= 80) {
+    band.style.background = "#1a4a26";
+    band.style.color = "#5dcc82";
+    band.textContent = "Strong";
+  } else if (total >= 60) {
+    band.style.background = "#3a2600";
+    band.style.color = "#f0b429";
+    band.textContent = "Moderate";
+  } else if (total >= 40) {
+    band.style.background = "#4a1010";
+    band.style.color = "#e07070";
+    band.textContent = "Weak";
+  } else {
+    band.style.background = "#4a0808";
+    band.style.color = "#ff6b6b";
+    band.textContent = "Critical";
+  }
+
+  // Breakdown bars
+  const breakdown = document.getElementById("scoreBreakdown");
+  breakdown.innerHTML = CATEGORIES.map(cat => {
+    const s = getCategoryScore(cat);
+    return `
+      <div class="score-bar-row">
+        <div class="score-bar-label">
+          <span class="score-bar-name">${cat.title}</span>
+          <span class="score-bar-val">${s.pct}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width:${s.pct}%; background:${s.pct >= 70 ? 'var(--green-mid)' : s.pct >= 40 ? 'var(--amber)' : 'var(--red)'}"></div>
+        </div>
+      </div>
+    `;
+  }).join("") + `<div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:10px;letter-spacing:1px;">${answered}/${totalQ} questions answered</div>`;
+
+  // Verdict
+  const verdictBox = document.getElementById("verdictBox");
+  if (answered < 5) {
+    verdictBox.style.background = "#f9f8f4";
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#aaa">Awaiting Input</div><div class="verdict-text" style="color:#ccc">—</div><div class="verdict-desc" style="color:#bbb">Complete the scorecard to generate a verdict.</div>`;
+  } else if (total >= 80) {
+    verdictBox.style.background = "#eef8f0";
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#2e7d32">ESG Rating</div><div class="verdict-text" style="color:#1a4a26">Credible Commitment</div><div class="verdict-desc" style="color:#2a5a34">Disclosure is comprehensive and third-party verified. Low greenwashing risk. Suitable for ESG-focused investors.</div>`;
+  } else if (total >= 60) {
+    verdictBox.style.background = "#fdf8ee";
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#d4a017">ESG Rating</div><div class="verdict-text" style="color:#6b4400">Partial Commitment</div><div class="verdict-desc" style="color:#5a3a00">Disclosure improving but gaps remain. Moderate greenwashing risk — verify Scope 3 and third-party audit status before investing.</div>`;
+  } else if (total >= 40) {
+    verdictBox.style.background = "#fff4f2";
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#c0392b">ESG Rating</div><div class="verdict-text" style="color:#7a1f1f">Weak Commitment</div><div class="verdict-desc" style="color:#6a1a1a">Significant disclosure gaps. High greenwashing risk. Sustainability claims require substantial independent verification.</div>`;
+  } else {
+    verdictBox.style.background = "#fdf0ee";
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#c0392b">ESG Rating</div><div class="verdict-text" style="color:#7a1f1f">Critical Deficiency</div><div class="verdict-desc" style="color:#6a1a1a">Minimal or no credible ESG disclosure. Greenwashing through omission is highly likely. Not suitable for responsible investment portfolios.</div>`;
+  }
+
+  // Risk flags
+  const riskFlags = document.getElementById("riskFlags");
+  const flags = [];
+  if (answers["scope3"] === "no") flags.push({ level: "red", text: "No Scope 3 reporting — greenwashing by omission risk (Lyon & Montgomery, 2015)" });
+  if (answers["audit"] === "no") flags.push({ level: "red", text: "No third-party audit — all sustainability claims are self-reported and potentially biased" });
+  if (answers["consistent"] === "no" || answers["withdrawal"] === "no") flags.push({ level: "red", text: "Evidence of withdrawn or reversed ESG commitments — greenwashing by abandoned commitment" });
+  if (answers["goals"] === "no") flags.push({ level: "amber", text: "No measurable sustainability goals — presence of vague language without metrics" });
+  if (answers["negative"] === "no") flags.push({ level: "amber", text: "No negative performance disclosure — selective reporting of positive data only" });
+  if (answers["tcfd"] === "yes" && answers["scope3"] === "no") flags.push({ level: "amber", text: "TCFD adopted but Scope 3 absent — incomplete disclosure pattern" });
+  if (answers["cdp"] === "yes" && answers["audit"] === "yes" && answers["consistent"] === "yes") flags.push({ level: "green", text: "CDP filing + verified audit + consistent commitments — strong credibility signal" });
+  if (answers["ca100"] === "yes") flags.push({ level: "green", text: "Active CA100+ participation demonstrates investor-level ESG accountability" });
+
+  if (flags.length === 0) {
+    riskFlags.innerHTML = `<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px 0;">Answer more questions to generate risk flags.</div>`;
+  } else {
+    riskFlags.innerHTML = flags.map(f => `
+      <div class="risk-item ${f.level}">
+        <div class="risk-dot ${f.level}"></div>
+        <div>${f.text}</div>
+      </div>
+    `).join("");
+  }
+}
+
+function setAnswer(qId, value) {
+  if (answers[qId] === value) {
+    delete answers[qId];
+  } else {
+    answers[qId] = value;
+  }
+  renderCategories();
+  renderSidebar();
+}
+
+function loadPreset(key) {
+  const preset = PRESETS[key];
+  document.getElementById("companyName").value = preset.name;
+  answers = { ...preset.answers };
+  renderCategories();
+  renderSidebar();
+}
+
+function resetAll() {
+  answers = {};
+  document.getElementById("companyName").value = "";
+  renderCategories();
+  renderSidebar();
+}
+
+// Init
+renderCategories();
+renderSidebar();
+</script>
+</body>
+</html>
