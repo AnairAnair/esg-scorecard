@@ -428,7 +428,7 @@
     <div class="hero-score-label">Total Score</div>
     <div class="hero-score-num" id="totalScore">0</div>
     <div class="hero-score-denom">out of 100</div>
-    <div class="hero-score-band" id="scoreBand" style="background:#2a2a2a; color:#888;">—</div>
+    <div class="hero-score-band" id="scoreBand" style="background:#2a2a2a; color:#888;">-</div>
   </div>
 </div>
 
@@ -460,7 +460,7 @@
       <div class="sidebar-card-body">
         <div class="verdict-box" id="verdictBox" style="background:#f9f8f4;">
           <div class="verdict-label" style="color:#aaa;">Awaiting Input</div>
-          <div class="verdict-text" style="color:#ccc;">—</div>
+          <div class="verdict-text" style="color:#ccc;">-</div>
           <div class="verdict-desc" style="color:#bbb;">Complete the scorecard to generate a verdict.</div>
         </div>
       </div>
@@ -491,6 +491,20 @@
 </div>
 
 <script>
+// Sanitize all strings — strip em dashes globally no matter the source
+function s(str) {
+  return typeof str === 'string' ? str.replace(/\u2014/g, '.').replace(/—/g, '.') : str;
+}
+
+// Patch innerHTML setter to always strip em dashes before rendering
+const _origInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+Object.defineProperty(Element.prototype, 'innerHTML', {
+  set(val) {
+    _origInnerHTML.set.call(this, typeof val === 'string' ? val.replace(/\u2014/g, '.').replace(/—/g, '.') : val);
+  },
+  get() { return _origInnerHTML.get.call(this); }
+});
+
 const CATEGORIES = [
   {
     id: "disclosure",
@@ -670,7 +684,7 @@ function renderSidebar() {
   if (answered === 0) {
     band.style.background = "#2a2a2a";
     band.style.color = "#888";
-    band.textContent = "—";
+    band.textContent = "-";
   } else if (total >= 80) {
     band.style.background = "#1a4a26";
     band.style.color = "#5dcc82";
@@ -710,13 +724,13 @@ function renderSidebar() {
   const verdictBox = document.getElementById("verdictBox");
   if (answered < 5) {
     verdictBox.style.background = "#f9f8f4";
-    verdictBox.innerHTML = `<div class="verdict-label" style="color:#aaa">Awaiting Input</div><div class="verdict-text" style="color:#ccc">—</div><div class="verdict-desc" style="color:#bbb">Complete the scorecard to generate a verdict.</div>`;
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#aaa">Awaiting Input</div><div class="verdict-text" style="color:#ccc">-</div><div class="verdict-desc" style="color:#bbb">Complete the scorecard to generate a verdict.</div>`;
   } else if (total >= 80) {
     verdictBox.style.background = "#eef8f0";
     verdictBox.innerHTML = `<div class="verdict-label" style="color:#2e7d32">ESG Rating</div><div class="verdict-text" style="color:#1a4a26">Credible Commitment</div><div class="verdict-desc" style="color:#2a5a34">Disclosure is comprehensive and third-party verified. Low greenwashing risk. Suitable for ESG-focused investors.</div>`;
   } else if (total >= 60) {
     verdictBox.style.background = "#fdf8ee";
-    verdictBox.innerHTML = `<div class="verdict-label" style="color:#d4a017">ESG Rating</div><div class="verdict-text" style="color:#6b4400">Partial Commitment</div><div class="verdict-desc" style="color:#5a3a00">Disclosure improving but gaps remain. Moderate greenwashing risk — verify Scope 3 and third-party audit status before investing.</div>`;
+    verdictBox.innerHTML = `<div class="verdict-label" style="color:#d4a017">ESG Rating</div><div class="verdict-text" style="color:#6b4400">Partial Commitment</div><div class="verdict-desc" style="color:#5a3a00">Disclosure improving but gaps remain. Moderate greenwashing risk. Verify Scope 3 and third-party audit status before investing.</div>`;
   } else if (total >= 40) {
     verdictBox.style.background = "#fff4f2";
     verdictBox.innerHTML = `<div class="verdict-label" style="color:#c0392b">ESG Rating</div><div class="verdict-text" style="color:#7a1f1f">Weak Commitment</div><div class="verdict-desc" style="color:#6a1a1a">Significant disclosure gaps. High greenwashing risk. Sustainability claims require substantial independent verification.</div>`;
@@ -728,13 +742,13 @@ function renderSidebar() {
   // Risk flags
   const riskFlags = document.getElementById("riskFlags");
   const flags = [];
-  if (answers["scope3"] === "no") flags.push({ level: "red", text: "No Scope 3 reporting — greenwashing by omission risk (Lyon & Montgomery, 2015)" });
-  if (answers["audit"] === "no") flags.push({ level: "red", text: "No third-party audit — all sustainability claims are self-reported and potentially biased" });
-  if (answers["consistent"] === "no" || answers["withdrawal"] === "no") flags.push({ level: "red", text: "Evidence of withdrawn or reversed ESG commitments — greenwashing by abandoned commitment" });
-  if (answers["goals"] === "no") flags.push({ level: "amber", text: "No measurable sustainability goals — presence of vague language without metrics" });
-  if (answers["negative"] === "no") flags.push({ level: "amber", text: "No negative performance disclosure — selective reporting of positive data only" });
-  if (answers["tcfd"] === "yes" && answers["scope3"] === "no") flags.push({ level: "amber", text: "TCFD adopted but Scope 3 absent — incomplete disclosure pattern" });
-  if (answers["cdp"] === "yes" && answers["audit"] === "yes" && answers["consistent"] === "yes") flags.push({ level: "green", text: "CDP filing + verified audit + consistent commitments — strong credibility signal" });
+  if (answers["scope3"] === "no") flags.push({ level: "red", text: "No Scope 3 reporting. Greenwashing by omission risk (Lyon & Montgomery, 2015)" });
+  if (answers["audit"] === "no") flags.push({ level: "red", text: "No third-party audit. All sustainability claims are self-reported and potentially biased" });
+  if (answers["consistent"] === "no" || answers["withdrawal"] === "no") flags.push({ level: "red", text: "Evidence of withdrawn or reversed ESG commitments. Greenwashing by abandoned commitment" });
+  if (answers["goals"] === "no") flags.push({ level: "amber", text: "No measurable sustainability goals. Presence of vague language without metrics" });
+  if (answers["negative"] === "no") flags.push({ level: "amber", text: "No negative performance disclosure. Selective reporting of positive data only" });
+  if (answers["tcfd"] === "yes" && answers["scope3"] === "no") flags.push({ level: "amber", text: "TCFD adopted but Scope 3 absent. Incomplete disclosure pattern" });
+  if (answers["cdp"] === "yes" && answers["audit"] === "yes" && answers["consistent"] === "yes") flags.push({ level: "green", text: "CDP filing + verified audit + consistent commitments. Strong credibility signal" });
   if (answers["ca100"] === "yes") flags.push({ level: "green", text: "Active CA100+ participation demonstrates investor-level ESG accountability" });
 
   if (flags.length === 0) {
